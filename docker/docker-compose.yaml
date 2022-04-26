@@ -1,0 +1,160 @@
+version: '3'
+
+networks:
+    local:
+
+services:
+    postgres:
+        image: postgres:13.6
+        container_name: postgres
+        expose:
+            - ${PGPORT}/tcp
+        ports:
+            - ${PGPORT}:5432
+        environment:
+            POSTGRES_PASSWORD: ${PGPASSWORD}
+            POSTGRES_HOST_AUTH_METHOD: ${POSTGRES_HOST_AUTH_METHOD}
+        networks:
+            - local
+        command: -N 300
+
+    adminer:
+        image: adminer:latest
+        container_name: adminer
+        ports:
+            - ${ADMINER_PORT}:8080
+        environment:
+            ADMINER_DEFAULT_SERVER: postgres
+        networks:
+            - local
+
+    blockscout_builder:
+        image: blockscout_builder:latest
+        stdin_open: true
+        tty: true
+        container_name: amino_explorer_builder
+        ports:
+            - ${EXPLORER_PORT}:4000
+        volumes:
+            - ../:/builder_app
+        environment:
+            MIX_ENV: ${MIX_ENV}
+            ETHEREUM_JSONRPC_VARIANT: ${ETHEREUM_JSONRPC_VARIANT}
+            ETHEREUM_JSONRPC_HTTP_URL: ${ETHEREUM_JSONRPC_HTTP_URL}
+            ETHEREUM_JSONRPC_TRACE_URL: ${ETHEREUM_JSONRPC_TRACE_URL}
+            CHAIN_RPC_URL: ${CHAIN_RPC_URL}
+            EXPLORER_URL: ${EXPLORER_URL}
+            SUPPORTED_CHAINS: ${SUPPORTED_CHAINS}
+            DATABASE_URL: ${DATABASE_URL}
+            ECTO_USE_SSL: ${ECTO_USE_SSL}
+            COIN: ${COIN}
+            LOGO: ${LOGO}
+            LOGO_TEXT: ${LOGO_TEXT}
+            NETWORK: ${NETWORK}
+            SUBNETWORK: ${SUBNETWORK}
+            SHOW_PRICE_CHART: ${SHOW_PRICE_CHART}
+            DISABLE_EXCHANGE_RATES: ${DISABLE_EXCHANGE_RATES}
+            SHOW_TXS_CHART: ${SHOW_TXS_CHART}
+            ENABLE_TXS_STATS: ${ENABLE_TXS_STATS}
+            HISTORY_FETCH_INTERVAL: ${HISTORY_FETCH_INTERVAL}
+            TXS_STATS_DAYS_TO_COMPILE_AT_INIT: ${TXS_STATS_DAYS_TO_COMPILE_AT_INIT}
+            CHAIN_ID: ${CHAIN_ID}
+            APPS_MENU: ${APPS_MENU}
+            EXTERNAL_APPS: ${EXTERNAL_APPS}
+        networks:
+            - local
+    
+    blockscout_indexer:
+        image: gcr.io/alpha-carbon/blockscout_testnet:v0.1.5
+        container_name: amino_explorer_indexer
+        environment:
+            PORT: ${INDEXER_PORT}
+            DISABLE_WRITE_API: "true"
+            DISABLE_WEBAPP: "true"
+            ECTO_USE_SSL: ${ECTO_USE_SSL}
+            FIRST_BLOCK: ${INDEXING_FROM_BLOCK}
+            PGUSER: ${PGUSER}
+            PGPASSWORD: ${PGPASSWORD}
+            DATABASE_URL: ${DATABASE_URL}
+            COIN: ${COIN}
+            ETHEREUM_JSONRPC_VARIANT: ${ETHEREUM_JSONRPC_VARIANT}
+            ETHEREUM_JSONRPC_HTTP_URL: ${ETHEREUM_JSONRPC_HTTP_URL}
+            ETHEREUM_JSONRPC_TRACE_URL: ${ETHEREUM_JSONRPC_TRACE_URL}
+            MIX_ENV: ${MIX_ENV}
+            ETH_BLOCK_INTERVAL: ${ETH_BLOCK_INTERVAL}
+            GLOBAL_TTL: ${GLOBAL_TTL}
+        networks:
+            - local
+        command: mix phx.server
+
+    blockscout_web:
+        image: gcr.io/alpha-carbon/blockscout_testnet:v0.1.5
+        container_name: amino_explorer_web
+        ports:
+            - ${EXPLORER_PORT}:${EXPLORER_PORT}
+        environment:
+            PORT: ${EXPLORER_PORT}
+            DISABLE_INDEXER: "true"
+            ECTO_USE_SSL: ${ECTO_USE_SSL}
+            PGUSER: ${PGUSER}
+            PGPASSWORD: ${PGPASSWORD}
+            DATABASE_URL: ${DATABASE_URL}
+            NETWORK: ${NETWORK}
+            SUBNETWORK: ${SUBNETWORK}
+            LOGO: ${LOGO}
+            LOGO_TEXT: ${LOGO_TEXT}
+            SUPPORTED_CHAINS: ${SUPPORTED_CHAINS}
+            COIN: ${COIN}
+            CHAIN_RPC_URL: ${CHAIN_RPC_URL}
+            EXPLORER_URL: ${EXPLORER_URL}
+            MIX_ENV: ${MIX_ENV}
+            BLOCKSCOUT_VERSION: ${BLOCKSCOUT_VERSION}
+            RELEASE_LINK: ${RELEASE_LINK}
+            SHOW_PRICE_CHART: ${SHOW_PRICE_CHART}
+            DISABLE_EXCHANGE_RATES: ${DISABLE_EXCHANGE_RATES}
+            SHOW_TXS_CHART: ${SHOW_TXS_CHART}
+            ENABLE_TXS_STATS: ${ENABLE_TXS_STATS}
+            HISTORY_FETCH_INTERVAL: ${HISTORY_FETCH_INTERVAL}
+            TXS_STATS_DAYS_TO_COMPILE_AT_INIT: ${TXS_STATS_DAYS_TO_COMPILE_AT_INIT}
+            CHAIN_ID: ${CHAIN_ID}
+            APPS_MENU: ${APPS_MENU}
+            EXTERNAL_APPS: ${EXTERNAL_APPS}
+            ETH_BLOCK_INTERVAL: ${ETH_BLOCK_INTERVAL}
+            GLOBAL_TTL: ${GLOBAL_TTL}
+        networks:
+            - local
+        command: mix phx.server
+
+    # blockscout_web_extra:
+    #     image: blockscout_amino:latest
+    #     container_name: amino_explorer_web_extra
+    #     ports:
+    #         - ${EXPLORER_EXTRA_PORT}:${EXPLORER_EXTRA_PORT}
+    #     volumes:
+    #         - ../:/builder_app
+    #     environment:
+    #         PORT: ${EXPLORER_EXTRA_PORT}
+    #         DISABLE_INDEXER: "true"
+    #         ECTO_USE_SSL: ${ECTO_USE_SSL}
+    #         PGUSER: ${PGUSER}
+    #         PGPASSWORD: ${PGPASSWORD}
+    #         DATABASE_URL: ${DATABASE_URL}
+    #         NETWORK: ${NETWORK}
+    #         SUBNETWORK: ${SUBNETWORK}
+    #         LOGO: ${LOGO}
+    #         LOGO_TEXT: ${LOGO_TEXT}
+    #         SUPPORTED_CHAINS: ${SUPPORTED_CHAINS}
+    #         COIN: ${COIN}
+    #         ETHEREUM_JSONRPC_VARIANT: ${ETHEREUM_JSONRPC_VARIANT}
+    #         ETHEREUM_JSONRPC_HTTP_URL: ${ETHEREUM_JSONRPC_HTTP_URL}
+    #         ETHEREUM_JSONRPC_TRACE_URL: ${ETHEREUM_JSONRPC_TRACE_URL}
+    #         CHAIN_RPC_URL: ${CHAIN_RPC_URL}
+    #         EXPLORER_URL: ${EXPLORER_URL}
+    #         MIX_ENV: ${MIX_ENV}
+    #         BLOCKSCOUT_VERSION: ${BLOCKSCOUT_VERSION}
+    #         RELEASE_LINK: ${RELEASE_LINK}
+    #     networks:
+    #         - local
+    #     depends_on:
+    #         - postgres
+    #     command: /bin/sh -c "cd /builder_app && mix phx.server"
