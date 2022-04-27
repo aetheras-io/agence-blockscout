@@ -32,7 +32,7 @@ services:
         image: blockscout_builder:latest
         stdin_open: true
         tty: true
-        container_name: amino_explorer_builder
+        container_name: explorer_builder
         ports:
             - ${EXPLORER_PORT}:4000
         volumes:
@@ -65,8 +65,8 @@ services:
             - local
     
     blockscout_indexer:
-        image: gcr.io/alpha-carbon/blockscout_testnet:v0.1.5
-        container_name: amino_explorer_indexer
+        image: gcr.io/aetheras.io/blockscout_testnet:v0.1.5
+        container_name: explorer_indexer
         environment:
             PORT: ${INDEXER_PORT}
             DISABLE_WRITE_API: "true"
@@ -88,8 +88,8 @@ services:
         command: mix phx.server
 
     blockscout_web:
-        image: gcr.io/alpha-carbon/blockscout_testnet:v0.1.5
-        container_name: amino_explorer_web
+        image: gcr.io/aetheras.io/blockscout_testnet:v0.1.5
+        container_name: explorer_web
         ports:
             - ${EXPLORER_PORT}:${EXPLORER_PORT}
         environment:
@@ -125,36 +125,3 @@ services:
             - local
         command: mix phx.server
 
-    # blockscout_web_extra:
-    #     image: blockscout_amino:latest
-    #     container_name: amino_explorer_web_extra
-    #     ports:
-    #         - ${EXPLORER_EXTRA_PORT}:${EXPLORER_EXTRA_PORT}
-    #     volumes:
-    #         - ../:/builder_app
-    #     environment:
-    #         PORT: ${EXPLORER_EXTRA_PORT}
-    #         DISABLE_INDEXER: "true"
-    #         ECTO_USE_SSL: ${ECTO_USE_SSL}
-    #         PGUSER: ${PGUSER}
-    #         PGPASSWORD: ${PGPASSWORD}
-    #         DATABASE_URL: ${DATABASE_URL}
-    #         NETWORK: ${NETWORK}
-    #         SUBNETWORK: ${SUBNETWORK}
-    #         LOGO: ${LOGO}
-    #         LOGO_TEXT: ${LOGO_TEXT}
-    #         SUPPORTED_CHAINS: ${SUPPORTED_CHAINS}
-    #         COIN: ${COIN}
-    #         ETHEREUM_JSONRPC_VARIANT: ${ETHEREUM_JSONRPC_VARIANT}
-    #         ETHEREUM_JSONRPC_HTTP_URL: ${ETHEREUM_JSONRPC_HTTP_URL}
-    #         ETHEREUM_JSONRPC_TRACE_URL: ${ETHEREUM_JSONRPC_TRACE_URL}
-    #         CHAIN_RPC_URL: ${CHAIN_RPC_URL}
-    #         EXPLORER_URL: ${EXPLORER_URL}
-    #         MIX_ENV: ${MIX_ENV}
-    #         BLOCKSCOUT_VERSION: ${BLOCKSCOUT_VERSION}
-    #         RELEASE_LINK: ${RELEASE_LINK}
-    #     networks:
-    #         - local
-    #     depends_on:
-    #         - postgres
-    #     command: /bin/sh -c "cd /builder_app && mix phx.server"
