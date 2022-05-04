@@ -3,6 +3,7 @@ version: '3'
 networks:
     local:
 
+
 services:
     postgres:
         image: postgres:13.6
@@ -63,9 +64,9 @@ services:
             EXTERNAL_APPS: ${EXTERNAL_APPS}
         networks:
             - local
-    
+
     blockscout_indexer:
-        image: gcr.io/aetheras.io/blockscout_testnet:v0.1.5
+        image: gcr.io/aetheras-io/blockscout_testnet:v0.1.5
         container_name: explorer_indexer
         environment:
             PORT: ${INDEXER_PORT}
@@ -88,7 +89,7 @@ services:
         command: mix phx.server
 
     blockscout_web:
-        image: gcr.io/aetheras.io/blockscout_testnet:v0.1.5
+        image: gcr.io/aetheras-io/blockscout_testnet:v0.1.5
         container_name: explorer_web
         ports:
             - ${EXPLORER_PORT}:${EXPLORER_PORT}
@@ -124,4 +125,3 @@ services:
         networks:
             - local
         command: mix phx.server
-
